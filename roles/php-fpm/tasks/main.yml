@@ -1,0 +1,36 @@
+---
+- name: Install php-fpm and deps
+  yum: name={{ item }} state=present
+  with_items:
+    - php
+    - php-fpm
+    - php-enchant
+    - php-IDNA_Convert
+    - php-mbstring
+    - php-mysql
+    - php-PHPMailer
+    - php-process
+    - php-simplepie
+    - php-xml
+
+- name: Disable default pool
+  command: mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.disabled creates=/etc/php-fpm.d/www.disabled
+  notify: restart php-fpm
+
+- name: Copy php-fpm configuration
+  template: src=wordpress.conf dest=/etc/php-fpm.d/
+  notify: restart php-fpm
+
+- name: Increase upload_max_size
+  lineinfile:
+    path: /etc/php.ini
+    regexp: '^upload_max_filesize ='
+    line: 'upload_max_filesize = {{ php_upload_max_filesize }}'
+  notify: restart php-fpm
+
+- name: Increase post_max_size
+  lineinfile:
+    path: /etc/php.ini
+    regexp: '^post_max_size ='
+    line: 'post_max_size = {{ php_post_max_size }}'
+  notify: restart php-fpm
