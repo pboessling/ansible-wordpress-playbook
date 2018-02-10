@@ -1,3 +1,5 @@
 *.iml
 .idea/
 .vagrant/
+production.yml
+production.ini
